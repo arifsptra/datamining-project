@@ -14,6 +14,11 @@ def load_data():
     y = dh[['target']]
     return dh, x, y
 
+@st.cache_data()
+def load_data_sample():
+    data = pd.read_csv('heart.csv')
+    return data
+
 def proses_data(x, y):
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=0)
     sc = StandardScaler()
