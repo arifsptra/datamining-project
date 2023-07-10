@@ -2,12 +2,12 @@ import streamlit as st
 from web_functions import load_data
 from Tabs import home
 from Tabs import predict
-# from Tabs import visualisasi
+from Tabs import visualisasi
 
 Tabs = {
     "Home": home,
     "Prediction": predict,
-    # "Visualization": visualisasi
+    "Visualization": visualisasi
 }
 
 # Membuat sidebar

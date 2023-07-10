@@ -12,20 +12,54 @@ def app(dh, x, y):
 
     with col1:
         age = st.number_input('Usia :', 17, 150)
-        sex = st.selectbox('Jenis Kelamin :', [0, 1])
-        cp = st.selectbox('Tipe Nyeri Dada :', [0, 1, 2, 3])
-        trestbps = st.number_input('Tekanan Darah Istirahat :', 80, 200)
+        sex = st.selectbox('Jenis Kelamin :', ['Laki-Laki', 'Perempuan'])
+        if(sex == 'Perempuan'):
+            sex=0
+        else:
+            sex=1
+        cp = st.selectbox('Tipe Nyeri Dada :', ['Tidak ada nyeri dada', 'Nyeri dada tipe non-anginal', 'Nyeri dada tipe angina tidak stabil', 'Nyeri dada tipe angina stabil'])
+        if(cp == 'Tidak ada nyeri dada'):
+            cp=0
+        elif(cp == 'Nyeri dada tipe non-anginal'):
+            cp=1
+        elif(cp == 'Nyeri dada tipe angina tidak stabil'):
+            cp=2
+        elif(cp == 'Nyeri dada tipe angina stabil'):
+            cp=3
+        trestbps = st.number_input('Tekanan Darah Istirahat :', 0, 500)
     with col2:
-        chol = st.number_input('Kolesterol Serum :', 110, 350)
-        fbs = st.number_input('Gula Darah Puasa :', 110, 350)
-        restecg = st.selectbox('Hasil Elektrokardiogram Istirahat :', [0, 1, 2])
-        thalach = st.number_input('Denyut Jantung Maksimum Tercapai :', 50, 200)
+        chol = st.number_input('Kolesterol Serum :', 0, 500)
+        fbs = st.number_input('Gula Darah Puasa :', 0, 500)
+        restecg = st.selectbox('Hasil Elektrokardiogram Istirahat :', ['Hasil normal', 'Memperlihatkan adanya kelainan gelombang ST-T (inversi gelombang T dan/atau elevasi atau depresi ST yang ≥ 0.05 mV)', 'Memperlihatkan adanya hipertrofi ventrikel kiri yang pasti menurut kriteria Estes'])
+        if(restecg == 'Hasil normal'):
+            restecg=0
+        elif(restecg == 'Memperlihatkan adanya kelainan gelombang ST-T (inversi gelombang T dan/atau elevasi atau depresi ST yang ≥ 0.05 mV)'):
+            restecg=1
+        elif(restecg == 'Memperlihatkan adanya hipertrofi ventrikel kiri yang pasti menurut kriteria Estes'):
+            restecg=2
+        thalach = st.number_input('Denyut Jantung Maksimum Tercapai :', 0, 500)
     with col3:
-        exang = st.selectbox('Angina yang Dipicu Olahraga :', [0, 1])
+        exang = st.selectbox('Angina yang Dipicu Olahraga :', ['ya', 'tidak'])
+        if(exang == 'ya'):
+            exang=1
+        else: 
+            exang=0
         oldpeak = st.number_input('Depresi ST yang Diinduksi oleh Olahraga Terhadap Istirahat :', 0., 10.)
-        slope = st.selectbox('Kemiringan Segmen ST Puncak Saat Olahraga :', [0, 1, 2])
-        ca = st.selectbox('Jumlah Pembuluh Darah Utama :', [0, 1, 2, 3])
-        thal = st.selectbox('Jenis Kelainan pada Thalassemia :', [0, 1, 2])
+        slope = st.selectbox('Kemiringan Segmen ST Puncak Saat Olahraga :', ['Kemiringan tidak dapat ditentukan', 'Kemiringan naik', 'Kemiringan turun'])
+        if(slope == 'Kemiringan tidak dapat ditentukan'):
+            slope=0
+        elif(slope == 'Kemiringan naik'):
+            slope=1
+        elif(slope == 'Kemiringan turun'):
+            slope=2
+        ca = st.number_input('Jumlah Pembuluh Darah Utama :', 0, 3)
+        thal = st.selectbox('Jenis Kelainan pada Thalassemia :', ['Normal', 'Cacat tetap', 'Cacat yang dapat dipulihkan'])
+        if(thal == 'Normal'):
+            thal=0
+        elif(thal == 'Cacat tetap'):
+            thal=1
+        elif(thal == 'Cacat yang dapat dipulihkan'):
+            thal=2
         
         # nk = st.number_input('Masukkan nilai k :')
         nk=4
