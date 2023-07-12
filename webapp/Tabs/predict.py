@@ -1,12 +1,15 @@
 from io import StringIO
 import pickle
+from more_itertools import tabulate
 import streamlit as st
 import numpy as np
 import pandas as pd
 from web_functions import predict, load_data, proses_data, train_model, load_data_sample
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def app(dh, x, y):
     st.title("Prediksi Penyakit Jantung")
@@ -50,7 +53,7 @@ def app(dh, x, y):
                 exang=1
             else: 
                 exang=0
-            oldpeak = st.number_input('Depresi ST yang Diinduksi oleh Olahraga Terhadap Istirahat :', 0., 10.)
+            oldpeak = st.number_input('Depresi ST yang Diinduksi oleh Olahraga Terhadap Istirahat :', 0., 10.)            
             slope = st.selectbox('Kemiringan Segmen ST Puncak Saat Olahraga :', ['Kemiringan tidak dapat ditentukan', 'Kemiringan naik', 'Kemiringan turun'])
             if(slope == 'Kemiringan tidak dapat ditentukan'):
                 slope=0
@@ -161,12 +164,12 @@ def app(dh, x, y):
             dataFrame['Thal'] = dataFrame['Thal'].replace({'Normal':0, 'Cacat tetap':1, 'Cacat yang dapat dipulihkan':2})
             dataFrame['HeartDisease'] = dataFrame['HeartDisease'].replace({'Ya':0, 'Tidak':1})
 
-            x_data = dataFrame[['Age', 'Thal', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal']]
+            x_data = dataFrame[['Age', 'Sex', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal']]
             y_target = dataFrame['HeartDisease']
 
             scaler = MinMaxScaler()
             x_data_scaled = scaler.fit_transform(x_data)
-            x_data_scaled = pd.DataFrame(x_data_scaled, columns=['Age', 'Thal', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal'])
+            x_data_scaled = pd.DataFrame(x_data_scaled, columns=['Age', 'Sex', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal'])
 
             knnModel = pickle.load(open('knn_model.sav', 'rb'))
             pred_data = knnModel.predict(x_data_scaled)
@@ -187,12 +190,18 @@ def app(dh, x, y):
             data = load_data_sample()
             st.dataframe(data.sample(5))
 
-        uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+        uploaded_file = st.file_uploader("Choose a CSV file", key="file1", type="csv")
+
+        upload_file2 = st.file_uploader("Choose a CSV file", key="file2", type="csv")
 
         if uploaded_file is not None:
             dataFrame = pd.read_csv(uploaded_file)
-            st.title("Your Data:")
+            dataFrameTesting = pd.read_csv(upload_file2)
+            # dataFrameFinal = pd.read_csv(uploaded_file)
+            # dataFrameFinal = dataFrame
+            st.title("Your Data Training:")
             df = pd.DataFrame(dataFrame)
+            df.index = range(1, len(df) + 1)
             st.dataframe(df)
             st.text("")
 
@@ -204,14 +213,93 @@ def app(dh, x, y):
             dataFrame['Thal'] = dataFrame['Thal'].replace({'Normal':0, 'Cacat tetap':1, 'Cacat yang dapat dipulihkan':2})
             dataFrame['HeartDisease'] = dataFrame['HeartDisease'].replace({'Ya':0, 'Tidak':1})
 
-            x_data = dataFrame[['Age', 'Thal', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal']]
-            y_target = dataFrame['HeartDisease']
+            x_train = dataFrame[['Age', 'Sex', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal']]
+            y_train = dataFrame['HeartDisease']
 
-            scaler = MinMaxScaler()
-            x_data_scaled = scaler.fit_transform(x_data)
-            x_data_scaled = pd.DataFrame(x_data_scaled, columns=['Age', 'Thal', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal'])
+            # scaler = MinMaxScaler()
+            # x_data_scaled = scaler.fit_transform(x_data)
+            # x_data_scaled = pd.DataFrame(x_data_scaled, columns=['Age', 'Sex', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal'])
 
-            knnModel = pickle.load(open('knn_model.sav', 'rb'))
-            pred_data = knnModel.predict(x_data_scaled)
-            knnAccuracy = accuracy_score(pred_data, y_target)
-            st.text("Accuracy from your data: " + str(knnAccuracy * 100) + "%")
+            # knnModel = pickle.load(open('knn_model.sav', 'rb'))
+            # pred_data = knnModel.predict(x_data_scaled)
+            # knnAccuracy = accuracy_score(pred_data, y_target)
+            # st.text("Accuracy from your data: " + str(knnAccuracy * 100) + "%")
+
+            # x_train, x_test, y_train, y_test = proses_data(x_data, y_target)
+
+            st.title("Your Data Testing:")
+            df2 = pd.DataFrame(dataFrameTesting)
+            df2.index = range(1, len(df2) + 1)
+            st.dataframe(df2)
+            st.text("")
+
+            dataFrame['Sex'] = dataFrame['Sex'].replace({'Laki-Laki':0, 'Perempuan':1})
+            dataFrame['ChestPainType'] = dataFrame['ChestPainType'].replace({'Tidak ada nyeri dada':0, 'Nyeri dada tipe non-anginal':1, 'Nyeri dada tipe angina tidak stabil':2, 'Nyeri dada tipe angina stabil':3})
+            dataFrame['RestingECG'] = dataFrame['RestingECG'].replace({'Hasil normal':0, 'Memperlihatkan adanya kelainan gelombang ST-T (inversi gelombang T dan/atau elevasi atau depresi ST yang ≥ 0.05 mV)':1, 'Memperlihatkan adanya hipertrofi ventrikel kiri yang pasti menurut kriteria Estes':2})
+            dataFrame['ExerciseAgina'] = dataFrame['ExerciseAgina'].replace({'Tidak':0, 'Ya':1})
+            dataFrame['ST_Slop'] = dataFrame['ST_Slop'].replace({'Kemiringan tidak dapat ditentukan':0, 'Kemiringan naik':1, 'Kemiringan turun':2})
+            dataFrame['Thal'] = dataFrame['Thal'].replace({'Normal':0, 'Cacat tetap':1, 'Cacat yang dapat dipulihkan':2})
+            dataFrame['HeartDisease'] = dataFrame['HeartDisease'].replace({'Ya':0, 'Tidak':1})
+
+            x_test = dataFrame[['Age', 'Sex', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBP', 'RestingECG', 'MaxHR', 'ExerciseAgina', 'Oldpeak', 'ST_Slop', 'CA', 'Thal']]
+            y_test = dataFrame['HeartDisease']
+
+            sc = StandardScaler()
+
+            x_train_scaled = sc.fit_transform(x_train)
+            x_test_scaled = sc.transform(x_test)
+
+            classifier = KNeighborsClassifier(n_neighbors=4, metric='euclidean')
+            classifier.fit(x_train_scaled, y_train)
+
+            y_pred = classifier.predict(x_test_scaled)
+
+            ac = accuracy_score(y_test, y_pred)
+
+            st.text("Accuracy from your data: " + str(ac * 100) + "%")
+
+            # st.header("Confusion Matrix from your data prediction")
+            # cm = confusion_matrix(pred_data,y_target)
+            # plt.figure(figsize=(8,6))
+            # sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+            # plt.xlabel("Predicted Labels")
+            # plt.ylabel("True Labels")
+            # st.pyplot(plt.gcf())
+
+            # st.title("Your Data:")
+
+            # # Create sample data
+            # empty = "    "
+            # data = {
+            #     "No ": empty,
+            #     "Label Sebenarnya": y_target,
+            #     "Hasil Prediksi": pred_data,
+            # }
+
+            # # Convert data to DataFrame
+            # df = pd.DataFrame(data)
+            # df.index = range(1, len(df) + 1)
+
+            # # Display the DataFrame using tabulate
+            # # table = tabulate(df, headers="keys", tablefmt="grid")
+            # st.text(df)
+
+            # st.header("Tabel Prediksi: ")
+            # # dataFrameHasil = pd.read_csv(uploaded_file)
+            # dataHasil = {
+            #     "Hasil Prediksi": pred_data,
+            # }
+
+            # dataFrameFinal['Hasil Prediksi'] = dataHasil["Hasil Prediksi"]
+            # dataFrameFinal.index = range(1, len(dataFrameFinal) + 1)
+            # dataFrameFinal['Sex'] = dataFrameFinal['Sex'].replace({0:'Laki-Laki', 1:'Perempuan'})
+            # dataFrameFinal['ChestPainType'] = dataFrameFinal['ChestPainType'].replace({0:'Tidak ada nyeri dada', 1:'Nyeri dada tipe non-anginal', 2:'Nyeri dada tipe angina tidak stabil', 3:'Nyeri dada tipe angina stabil'})
+            # dataFrameFinal['RestingECG'] = dataFrameFinal['RestingECG'].replace({0:'Hasil normal', 1:'Memperlihatkan adanya kelainan gelombang ST-T (inversi gelombang T dan/atau elevasi atau depresi ST yang ≥ 0.05 mV)', 2:'Memperlihatkan adanya hipertrofi ventrikel kiri yang pasti menurut kriteria Estes'})
+            # dataFrameFinal['ExerciseAgina'] = dataFrameFinal['ExerciseAgina'].replace({0:'Tidak',1: 'Ya'})
+            # dataFrameFinal['ST_Slop'] = dataFrameFinal['ST_Slop'].replace({0:'Kemiringan tidak dapat ditentukan', 1:'Kemiringan naik', 2:'Kemiringan turun'})
+            # dataFrameFinal['Thal'] = dataFrameFinal['Thal'].replace({0:'Normal', 1:'Cacat tetap', 2:'Cacat yang dapat dipulihkan'})
+            # dataFrameFinal['HeartDisease'] = dataFrameFinal['HeartDisease'].replace({0:'Ya',1: 'Tidak'})
+            # dataFrameFinal['Hasil Prediksi'] = dataFrameFinal['Hasil Prediksi'].replace({0:'Ya', 1:'Tidak'})
+
+            # st.dataframe(dataFrameFinal)
+

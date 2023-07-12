@@ -1,0 +1,4 @@
+Age,Sex,ChestPainType,RestingBP,Cholesterol,FastingBP,RestingECG,MaxHR,ExerciseAgina,Oldpeak,ST_Slop,CA,Thal,HeartDisease
+43,Laki-Laki,Nyeri dada tipe non-anginal,122,265,0,Memperlihatkan adanya hipertrofi ventrikel kiri yang pasti menurut kriteria Estes,160,Tidak,2,Kemiringan tidak dapat ditentukan,2,Cacat yang dapat dipulihkan,Ya
+70,Perempuan,Nyeri dada tipe angina stabil,150,215,1,Memperlihatkan adanya kelainan gelombang ST-T (inversi gelombang T dan/atau elevasi atau depresi ST yang ≥ 0.05 mV),142,Tidak,2.5,Kemiringan turun,3,Cacat yang dapat dipulihkan,Ya
+32,Perempuan,Tidak ada nyeri dada,156,182,0,Hasil normal,118,Tidak,0.5,Kemiringan naik,0,Normal,Tidak
